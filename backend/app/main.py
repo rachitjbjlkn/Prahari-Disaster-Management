@@ -77,9 +77,22 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # Serve built React frontend (production)
-STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
-if os.path.isdir(STATIC_DIR):
-    app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="static-assets")
+_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_cwd = os.getcwd()
+STATIC_DIR = None
+for candidate in [
+    os.path.join(_backend_dir, "static"),
+    os.path.join(_cwd, "static"),
+    os.path.join(_cwd, "backend", "static"),
+]:
+    if os.path.isdir(candidate):
+        STATIC_DIR = candidate
+        break
+
+if STATIC_DIR:
+    assets_dir = os.path.join(STATIC_DIR, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="static-assets")
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
