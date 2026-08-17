@@ -59,10 +59,6 @@ app.include_router(dashboard.router)
 app.include_router(auth.router)
 app.include_router(sms.router)
 
-@app.get("/api/health")
-def health():
-    return {"status": "ok", "service": "prahari-coordination-backend"}
-
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
     await manager.connect(ws)
@@ -77,17 +73,26 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # Serve built React frontend (production)
-_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _cwd = os.getcwd()
 STATIC_DIR = None
 for candidate in [
-    os.path.join(_backend_dir, "static"),
     os.path.join(_cwd, "static"),
     os.path.join(_cwd, "backend", "static"),
+    os.path.join(os.path.dirname(_cwd), "backend", "static"),
+    "/opt/render/project/src/backend/static",
 ]:
     if os.path.isdir(candidate):
         STATIC_DIR = candidate
         break
+
+@app.get("/api/health")
+def health():
+    return {
+        "status": "ok",
+        "service": "prahari-coordination-backend",
+        "static_dir": STATIC_DIR,
+        "cwd": _cwd,
+    }
 
 if STATIC_DIR:
     assets_dir = os.path.join(STATIC_DIR, "assets")
