@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import Rail from './components/Rail';
 import Topbar from './components/Topbar';
+import MobileNav from './components/MobileNav';
 import Overview from './pages/Overview';
 import HazardMap from './pages/HazardMap';
 import CitizenReports from './pages/CitizenReports';
@@ -11,6 +13,7 @@ import Login from './pages/Login';
 
 function Shell() {
   const { user, authReady } = useApp();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   if (!authReady) {
     return <div className="login-wrap"><div className="skeleton" style={{ width: 280, height: 340, borderRadius: 14 }} /></div>;
@@ -22,7 +25,8 @@ function Shell() {
     <BrowserRouter>
       <div className="app-shell">
         <Rail />
-        <Topbar />
+        <MobileNav open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+        <Topbar onMenuOpen={() => setDrawerOpen(true)} />
         <main className="main">
           <Routes>
             <Route path="/" element={<Overview />} />

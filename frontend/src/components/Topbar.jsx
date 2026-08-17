@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Wifi, WifiOff, LogOut, Lock } from 'lucide-react';
+import { Wifi, WifiOff, LogOut, Lock, Menu } from 'lucide-react';
 import LocationSearch from './LocationSearch';
 
-export default function Topbar() {
+export default function Topbar({ onMenuOpen }) {
   const { user, logout, department, setDepartment, DEPARTMENTS, connected, liveEvents } = useApp();
   const [clock, setClock] = useState('');
 
@@ -27,6 +27,10 @@ export default function Topbar() {
 
   return (
     <header className="topbar">
+      <button className="topbar-hamburger" onClick={onMenuOpen} aria-label="Open menu">
+        <Menu size={20} />
+      </button>
+
       <div className="topbar-depts" role="group" aria-label="Department context">
         {DEPARTMENTS.map(d => {
           const active = department === d.id;
@@ -56,7 +60,7 @@ export default function Topbar() {
 
       <div className="topbar-status">
         {user && (
-          <span className="conn-pill conn-on" title={`${user.full_name} · ${user.role}`}>
+          <span className="conn-pill conn-on topbar-user-pill" title={`${user.full_name} · ${user.role}`}>
             <span className={`chip chip-${user.department}`} aria-hidden="true">{user.department}</span>
             {user.username}
           </span>
