@@ -3,8 +3,8 @@ services:
     name: prahari
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt && cd frontend && npm install && npm run build && ls -la dist/ && cd .. && mkdir -p backend/static && cp -r frontend/dist/* backend/static/ && ls -la backend/static/
-    startCommand: cd backend && python seed.py; uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r requirements.txt && cd frontend && npm install && npm run build && cd .. && ls -la frontend/dist/
+    startCommand: cd backend && mkdir -p static && cp -r ../frontend/dist/* static/ && python seed.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.9"
