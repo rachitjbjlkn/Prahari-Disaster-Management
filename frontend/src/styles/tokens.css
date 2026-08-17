@@ -1,0 +1,66 @@
+:root {
+  /* Brand — PRAHARI identity: deep teal, calm + trustworthy civic-tech */
+  --primary: #0F766E;
+  --primary-strong: #115E59;
+  --primary-soft: #14B8A6;
+  --primary-bg: #CCFBF1;
+  --accent: #0F766E;
+  --accent-soft: #14B8A6;
+  --accent-bg: #F0FDFA;
+
+  /* Surfaces */
+  --bg: #F4F6F9;
+  --bg-soft: #EAEEF4;
+  --surface: #FFFFFF;
+  --surface-2: #F3F5F9;
+  --surface-3: #E7EBF1;
+  --border: #DDE3EC;
+  --border-soft: #E9EDF3;
+
+  /* Text */
+  --text: #0B1B2B;
+  --text-muted: #52606D;
+  --text-dim: #8A95A5;
+
+  /* Risk semantics */
+  --risk-critical: #DC2626;
+  --risk-critical-bg: rgba(220, 38, 38, 0.09);
+  --risk-elevated: #D97706;
+  --risk-elevated-bg: rgba(217, 119, 6, 0.11);
+  --risk-stable: #059669;
+  --risk-stable-bg: rgba(5, 150, 105, 0.09);
+
+  /* Report status */
+  --verified: #059669;
+  --pending: #D97706;
+  --flagged: #DC2626;
+
+  /* Department call signs */
+  --dept-fire: #EA580C;
+  --dept-police: #4F46E5;
+  --dept-health: #0D9488;
+  --dept-ndrf: #CA8A04;
+  --dept-municipal: #7C3AED;
+
+  /* Type */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Layout */
+  --rail-w: 76px;
+  --topbar-h: 62px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 16px -4px rgba(16, 24, 40, 0.10), 0 2px 6px rgba(16, 24, 40, 0.05);
+  --shadow-lg: 0 16px 40px -12px rgba(16, 24, 40, 0.22);
+  --ring: 0 0 0 3px rgba(20, 184, 166, 0.28);
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 180ms;
+}
