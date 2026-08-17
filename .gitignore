@@ -9,7 +9,6 @@ venv/
 .venv/
 
 # Build output
-frontend/dist/
 backend/static/
 
 # Database (ephemeral on Render free tier)
