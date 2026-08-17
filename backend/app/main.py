@@ -79,7 +79,10 @@ for candidate in [
     os.path.join(_cwd, "static"),
     os.path.join(_cwd, "backend", "static"),
     os.path.join(os.path.dirname(_cwd), "backend", "static"),
+    os.path.join(os.path.dirname(_cwd), "frontend", "dist"),
+    os.path.join(_cwd, "frontend", "dist"),
     "/opt/render/project/src/backend/static",
+    "/opt/render/project/src/frontend/dist",
 ]:
     if os.path.isdir(candidate):
         STATIC_DIR = candidate
