@@ -1,9 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '../api/client';
 import { useApp } from '../context/AppContext';
-import { Search, X, AlertTriangle, MapPin } from 'lucide-react';
+import { Search, X, AlertTriangle } from 'lucide-react';
 
 const tierClass = (t) => (t === 'high' ? 'badge-critical' : t === 'medium' ? 'badge-elevated' : 'badge-stable');
+
+function Portal({ children }) {
+  return createPortal(children, document.body);
+}
+
+function usePosition(ref) {
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 280 });
+  useEffect(() => {
+    if (!ref.current) return;
+    const update = () => {
+      const r = ref.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 8, left: r.left, width: r.width });
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => { window.removeEventListener('resize', update); window.removeEventListener('scroll', update, true); };
+  });
+  return pos;
+}
 
 export default function LocationSearch() {
   const { setFlyTo, haversine, setSearchCenter, setNearbyDisasters, nearbyDisasters } = useApp();
@@ -13,6 +34,7 @@ export default function LocationSearch() {
   const [allWards, setAllWards] = useState([]);
   const [highlight, setHighlight] = useState(0);
   const boxRef = useRef(null);
+  const pos = usePosition(boxRef);
 
   useEffect(() => {
     (async () => {
@@ -21,26 +43,17 @@ export default function LocationSearch() {
         setAllWards(wards);
         setItems([
           ...wards.map((w) => ({
-            type: 'ward',
-            id: `w${w.id}`,
-            label: w.name,
+            type: 'ward', id: `w${w.id}`, label: w.name,
             sub: `Risk score ${w.risk_score} · ${w.risk_tier}`,
-            lat: w.lat,
-            lng: w.lng,
-            tier: w.risk_tier,
-            risk_score: w.risk_score,
+            lat: w.lat, lng: w.lng, tier: w.risk_tier, risk_score: w.risk_score,
           })),
           ...resources.map((r) => ({
-            type: 'resource',
-            id: `r${r.id}`,
-            label: r.name,
+            type: 'resource', id: `r${r.id}`, label: r.name,
             sub: `${r.department} · ${r.capacity_used}/${r.capacity_total} in use`,
-            lat: r.lat,
-            lng: r.lng,
-            department: r.department,
+            lat: r.lat, lng: r.lng, department: r.department,
           })),
         ]);
-      } catch { /* backend offline — search stays empty */ }
+      } catch { /* backend offline */ }
     })();
   }, []);
 
@@ -104,48 +117,57 @@ export default function LocationSearch() {
       </div>
 
       {open && q && (
-        <div className="search-drop" role="listbox" aria-label="Location results">
-          {results.length === 0 && <div className="search-empty">No locations match "{query.trim()}"</div>}
-          {results.map((r, i) => (
-            <div
-              key={r.id}
-              role="option"
-              aria-selected={i === active}
-              onMouseEnter={() => setHighlight(i)}
-              onMouseDown={(e) => { e.preventDefault(); select(r); }}
-              className={`search-item${i === active ? ' search-item-active' : ''}`}
-            >
-              <span className={`chip ${r.type === 'ward' ? 'chip-ndrf' : `chip-${r.department}`}`} style={{ flexShrink: 0 }}>
-                {r.type === 'ward' ? 'WARD' : r.department.toUpperCase()}
-              </span>
-              <div className="search-item-body">
-                <div className="search-item-label">{r.label}</div>
-                <div className="mono search-item-sub">{r.sub}</div>
+        <Portal>
+          <div
+            className="search-drop"
+            role="listbox"
+            aria-label="Location results"
+            style={{ position: 'fixed', top: pos.top, left: pos.left, width: pos.width }}
+          >
+            {results.length === 0 && <div className="search-empty">No locations match "{query.trim()}"</div>}
+            {results.map((r, i) => (
+              <div
+                key={r.id}
+                role="option"
+                aria-selected={i === active}
+                onMouseEnter={() => setHighlight(i)}
+                onMouseDown={(e) => { e.preventDefault(); select(r); }}
+                className={`search-item${i === active ? ' search-item-active' : ''}`}
+              >
+                <span className={`chip ${r.type === 'ward' ? 'chip-ndrf' : `chip-${r.department}`}`} style={{ flexShrink: 0 }}>
+                  {r.type === 'ward' ? 'WARD' : r.department.toUpperCase()}
+                </span>
+                <div className="search-item-body">
+                  <div className="search-item-label">{r.label}</div>
+                  <div className="mono search-item-sub">{r.sub}</div>
+                </div>
+                {r.type === 'ward' && <span className={`badge ${tierClass(r.tier)}`} style={{ flexShrink: 0 }}>{r.tier}</span>}
               </div>
-              {r.type === 'ward' && <span className={`badge ${tierClass(r.tier)}`} style={{ flexShrink: 0 }}>{r.tier}</span>}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Portal>
       )}
 
       {nearbyDisasters && nearbyDisasters.length > 0 && (
-        <div className="nearby-panel">
-          <div className="nearby-header">
-            <AlertTriangle size={13} color="var(--text-muted)" aria-hidden="true" />
-            Nearby disaster areas ({nearbyDisasters.length} within 10 km)
-          </div>
-          {nearbyDisasters.slice(0, 6).map((d) => (
-            <div key={d.id} className="nearby-item">
-              <span className="nearby-name">{d.name}</span>
-              <span className="nearby-dist">
-                {d.distance_km} km · {d.risk_tier} ({d.risk_score}/100)
-              </span>
+        <Portal>
+          <div className="nearby-panel" style={{ position: 'fixed', top: pos.top, right: 12 }}>
+            <div className="nearby-header">
+              <AlertTriangle size={13} color="var(--text-muted)" aria-hidden="true" />
+              Nearby disaster areas ({nearbyDisasters.length} within 10 km)
             </div>
-          ))}
-          {nearbyDisasters.length > 6 && (
-            <div className="search-empty">+{nearbyDisasters.length - 6} more within range</div>
-          )}
-        </div>
+            {nearbyDisasters.slice(0, 6).map((d) => (
+              <div key={d.id} className="nearby-item">
+                <span className="nearby-name">{d.name}</span>
+                <span className="nearby-dist">
+                  {d.distance_km} km · {d.risk_tier} ({d.risk_score}/100)
+                </span>
+              </div>
+            ))}
+            {nearbyDisasters.length > 6 && (
+              <div className="search-empty">+{nearbyDisasters.length - 6} more within range</div>
+            )}
+          </div>
+        </Portal>
       )}
     </div>
   );
