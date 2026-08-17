@@ -33,6 +33,7 @@ export default function LocationSearch() {
   const [items, setItems] = useState([]);
   const [allWards, setAllWards] = useState([]);
   const [highlight, setHighlight] = useState(0);
+  const [showNearby, setShowNearby] = useState(false);
   const boxRef = useRef(null);
   const pos = usePosition(boxRef);
 
@@ -77,9 +78,16 @@ export default function LocationSearch() {
       .sort((a, b) => a.distance_km - b.distance_km);
     setSearchCenter({ lat: item.lat, lng: item.lng });
     setNearbyDisasters(nearby);
+    setShowNearby(true);
     setQuery('');
     setOpen(false);
     setHighlight(0);
+  };
+
+  const closeNearby = () => {
+    setShowNearby(false);
+    setNearbyDisasters(null);
+    setSearchCenter(null);
   };
 
   const onSearchInputChange = (e) => {
@@ -148,12 +156,15 @@ export default function LocationSearch() {
         </Portal>
       )}
 
-      {nearbyDisasters && nearbyDisasters.length > 0 && (
+      {showNearby && nearbyDisasters && nearbyDisasters.length > 0 && (
         <Portal>
           <div className="nearby-panel" style={{ position: 'fixed', top: pos.top, right: 12 }}>
             <div className="nearby-header">
               <AlertTriangle size={13} color="var(--text-muted)" aria-hidden="true" />
-              Nearby disaster areas ({nearbyDisasters.length} within 10 km)
+              Nearby ({nearbyDisasters.length} within 10 km)
+              <button className="nearby-close" onClick={closeNearby} aria-label="Close nearby panel">
+                <X size={13} />
+              </button>
             </div>
             {nearbyDisasters.slice(0, 6).map((d) => (
               <div key={d.id} className="nearby-item">
